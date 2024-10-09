@@ -18,7 +18,7 @@ This repository contains two versions (Python and Shell) of a script designed to
 ## Requirements
 
 ### Shell Version (`taxii_to_crowdstrike.sh`):
-- **Bash** (tested with `/bin/sh`)
+- **Shell (`/bin/sh`)**
 - `curl` for making HTTP requests.
 - `jq` for parsing JSON responses.
 
@@ -72,7 +72,7 @@ Both versions of the script log all activity to a log file located at `/var/log/
 ## Script Overview
 
 ### Shell Version (`taxii_to_crowdstrike.sh`):
-This version of the script is a **Bash**-based implementation that uses `curl` for HTTP requests and `jq` for JSON parsing.
+This version of the script is a **Shell**-based implementation that uses `curl` for HTTP requests and `jq` for JSON parsing.
 
 Main functions:
 - **get_crowdstrike_token**: Fetches the OAuth2 token from CrowdStrike Falcon.
