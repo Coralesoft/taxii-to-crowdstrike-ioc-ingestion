@@ -28,9 +28,10 @@ This repository contains two versions (Python and Shell) of a script designed to
 - `jq` equivalent for processing JSON in Python (parsing handled by the `requests` library).
 
 You can install the Python dependencies with:
-\`\`\`bash
+
+```bash
 pip install requests
-\`\`\`
+```
 
 ## Usage
 
@@ -51,18 +52,18 @@ Both versions of the script expect the following environment variables to be set
 
 To execute the shell script, ensure it's executable and run it as follows:
 
-\`\`\`bash
+```bash
 chmod +x taxii_to_crowdstrike.sh
 ./taxii_to_crowdstrike.sh
-\`\`\`
+```
 
 ### Running the Python Version
 
 Make sure you have Python 3 installed. Then, execute the Python script:
 
-\`\`\`bash
+```bash
 python3 taxii_to_crowdstrike.py
-\`\`\`
+```
 
 ### Logging
 
