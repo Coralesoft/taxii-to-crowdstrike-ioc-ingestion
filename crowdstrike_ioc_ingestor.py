@@ -1,3 +1,15 @@
+#!/usr/bin/env python
+# TAXII to CrowdStrike IOC Ingestion Script
+# Script to poll a STIX/TAXII server for IOCs and ingest them into CrowdStrike Falcon.
+# Developed by C.Brown (dev@coralesoft.nz)
+# This software is released under the MIT License.
+# See the LICENSE file in the project root for the full license text.
+# Last revised 08/10/2024
+# version 2024.10.1
+#-----------------------------------------------------------------------
+# Version      Date         Notes:
+# 2024.10.1    08.10.2024   Inital Public Release
+#-----------------------------------------------------------------------
 import requests
 from cabby import create_client
 
