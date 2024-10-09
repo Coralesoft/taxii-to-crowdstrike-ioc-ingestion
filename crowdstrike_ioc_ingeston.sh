@@ -8,7 +8,7 @@
 # version 2024.10.4
 #-----------------------------------------------------------------------
 # Version      Date         Notes:
-# 2024.10.1    Initial Public Release
+# 2024.10.1    08-10.2024   Initial Public Release
 # 2024.10.2    09.10.2024   Added error handling, logging, and retries for robustness
 # 2024.10.3    09.10.2024   Handle pagination of large datasets
 # 2024.10.4    09.10.2024   Added improved token handling, error checking, and page-by-page processing
