@@ -1,7 +1,7 @@
 
 # TAXII to CrowdStrike IOC Ingestion Script
 
-This repository contains two versions (Python and Shell) of a script designed to poll a **STIX/TAXII** server for **Indicators of Compromise (IOCs)** and ingest them into **CrowdStrike Falcon**. The scripts handle **pagination**, **token management**, and include **robust error handling** for interacting with both TAXII and CrowdStrike Falcon APIs.
+This repository contains two versions (Python and Shell) of a script designed to poll a **STIX/TAXII** server for **Indicators of Compromise (IOCs)** and ingest them into **CrowdStrike Falcon**. The scripts handle **pagination**, **token management**, and include ** error handling** for interacting with both TAXII and CrowdStrike Falcon APIs.
 
 ## Features
 - **Configurable rate limiting** to control API request frequency, adjustable via environment variables (`RATE_LIMIT_DELAY`).
