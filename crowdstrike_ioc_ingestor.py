@@ -4,14 +4,15 @@
 # Developed by C.Brown (dev@coralesoft.nz)
 # This software is released under the MIT License.
 # See the LICENSE file in the project root for the full license text.
-# Last revised 09/10/2024
-# version 2024.10.4
+# Last revised 10/10/2024
+# version 2024.10.5
 #-----------------------------------------------------------------------
 # Version      Date         Notes:
 # 2024.10.1    08-10.2024   Initial Public Release
 # 2024.10.2    09.10.2024   Added error handling, logging, and retries for robustness
 # 2024.10.3    09.10.2024   Handle pagination of large datasets
 # 2024.10.4    09.10.2024   Added improved token handling, error checking, and page-by-page processing
+# 2024.10.5    10.10.2024   Added configurable rate limiting
 #-----------------------------------------------------------------------
 
 import os
@@ -32,6 +33,9 @@ TAXII_SERVER_URL = os.getenv('TAXII_SERVER_URL', 'https://taxii.server.url')
 TAXII_USERNAME = os.getenv('TAXII_USERNAME', 'your_taxii_username')
 TAXII_PASSWORD = os.getenv('TAXII_PASSWORD', 'your_taxii_password')
 TAXII_COLLECTION = os.getenv('TAXII_COLLECTION', 'your_taxii_collection')
+
+# Rate limiting delay (in seconds) configurable via environment variable, default is 2 seconds
+RATE_LIMIT_DELAY = int(os.getenv('RATE_LIMIT_DELAY', 2))
 
 MAX_RETRIES = 3
 
@@ -54,6 +58,11 @@ def retry(func, *args, **kwargs):
             delay *= 2
     log("The command has failed after maximum retry attempts.")
     return None
+
+def rate_limit():
+    """Rate limiting to control the request frequency."""
+    log(f"Rate limiting: Waiting for {RATE_LIMIT_DELAY} seconds before the next request...")
+    time.sleep(RATE_LIMIT_DELAY)
 
 def get_crowdstrike_token():
     """Retrieve CrowdStrike OAuth2 token."""
@@ -92,6 +101,9 @@ def poll_taxii_server():
         iocs = [obj['pattern'].split("'")[1] for obj in taxii_data.get('objects', []) if obj['type'] == 'indicator']
         all_iocs.extend(iocs)
         log(f"Retrieved {len(iocs)} IOCs from TAXII.")
+        
+        # Add rate limiting between each request
+        rate_limit()
 
         next_token = taxii_data.get('next_token')
         if not next_token:
@@ -158,9 +170,12 @@ def push_iocs_to_crowdstrike(iocs, access_token):
                 "source": "TAXII Import"
             }
             response = requests.post("https://api.crowdstrike.com/indicators/entities/iocs/v1", headers=headers, json=payload)
-        
+
         if response.status_code not in (200, 201):
             log(f"Failed to push/update IOC {ioc}: {response.status_code} {response.text}")
+        
+        # Add rate limiting between each IOC push
+        rate_limit()
 
 def main():
     log("TAXII to CrowdStrike IOC ingestion started.")
