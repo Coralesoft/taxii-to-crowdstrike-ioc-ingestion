@@ -4,14 +4,15 @@
 # Developed by C.Brown (dev@coralesoft.nz)
 # This software is released under the MIT License.
 # See the LICENSE file in the project root for the full license text.
-# Last revised 09/10/2024
-# version 2024.10.4
+# Last revised 10/10/2024
+# version 2024.10.5
 #-----------------------------------------------------------------------
 # Version      Date         Notes:
 # 2024.10.1    08-10.2024   Initial Public Release
 # 2024.10.2    09.10.2024   Added error handling, logging, and retries for robustness
 # 2024.10.3    09.10.2024   Handle pagination of large datasets
 # 2024.10.4    09.10.2024   Added improved token handling, error checking, and page-by-page processing
+# 2024.10.5    10.10.2024   Added configurable rate limiting
 #-----------------------------------------------------------------------
 
 # CrowdStrike Falcon API credentials (load from environment or configuration)
@@ -27,6 +28,9 @@ TAXII_COLLECTION="${TAXII_COLLECTION:-your_taxii_collection}"
 # Log file where script activity will be stored
 LOG_FILE="/var/log/taxii_to_crowdstrike.log"
 MAX_RETRIES=3
+
+# Rate limiting configuration (adjustable via environment variables)
+RATE_LIMIT_DELAY="${RATE_LIMIT_DELAY:-2}"  # Default is 2 seconds if not specified
 
 log() {
     echo "$(date) - $1" | tee -a "$LOG_FILE"
@@ -49,6 +53,12 @@ retry() {
             fi
         }
     done
+}
+
+# Rate limiting to control API request frequency
+rate_limit() {
+    log "Rate limiting: Waiting for $RATE_LIMIT_DELAY seconds before the next request..."
+    sleep "$RATE_LIMIT_DELAY"
 }
 
 # Get the CrowdStrike Falcon OAuth2 token
@@ -85,6 +95,9 @@ poll_taxii_server() {
                 -d "<taxii_poll_request_xml>" \
                 "$TAXII_SERVER_URL/collections/$TAXII_COLLECTION/poll")
         fi
+
+        # Add rate limiting between requests
+        rate_limit
 
         # Process the IOCs from each page
         IOCs=$(echo "$taxii_response" | jq -r '.objects[] | select(.type=="indicator") | .pattern' | grep "domain-name" | cut -d"'" -f2)
@@ -160,6 +173,9 @@ push_iocs_to_crowdstrike() {
                 -H "Content-Type: application/json" \
                 -d "$JSON_PAYLOAD"
         fi
+
+        # Add rate limiting between requests
+        rate_limit
     done
 }
 
