@@ -1,9 +1,11 @@
 
 # TAXII to CrowdStrike IOC Ingestion Script
 
-This repository contains two versions (Python and Shell) of a script designed to poll a **STIX/TAXII** server for **Indicators of Compromise (IOCs)** and ingest them into **CrowdStrike Falcon**. The scripts handle **pagination**, **token management**, and include **error handling** for interacting with both TAXII and CrowdStrike Falcon APIs.
+This repository contains two versions (Python and Shell) of a script designed to poll a **STIX/TAXII** server for **Indicators of Compromise (IOCs)** and ingest them into **CrowdStrike Falcon**. The scripts handle **pagination**, **token management**, and include **robust error handling** for interacting with both TAXII and CrowdStrike Falcon APIs.
 
 ## Features
+- **Configurable rate limiting** to control API request frequency, adjustable via environment variables (`RATE_LIMIT_DELAY`).
+
 - Poll **STIX/TAXII** servers to retrieve IOCs.
 - Push or update **IOCs** into **CrowdStrike Falcon**.
 - Handle **pagination** for large datasets from both TAXII and CrowdStrike Falcon APIs.
@@ -47,6 +49,7 @@ Both versions of the script expect the following environment variables to be set
 | `TAXII_USERNAME`    | TAXII server username                     |
 | `TAXII_PASSWORD`    | TAXII server password                     |
 | `TAXII_COLLECTION`  | TAXII collection name                     |
+| `RATE_LIMIT_DELAY`  | (Optional) Delay between API requests, defaults to 2 seconds |
 
 ### Running the Shell Version
 
@@ -96,6 +99,7 @@ Main functions:
 | **2024.10.2**| 09-10-2024    | Added error handling, logging, and retries for robustness         |
 | **2024.10.3**| 09-10-2024    | Handle pagination of large datasets from TAXII and CrowdStrike    |
 | **2024.10.4**| 09-10-2024    | Improved token handling, error checking, and page-by-page processing |
+| **2024.10.5**| 10-10-2024    | Added configurable rate limiting for managing API request frequency |
 
 ## License
 
