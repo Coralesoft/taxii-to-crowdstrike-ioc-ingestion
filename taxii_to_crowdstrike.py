@@ -4,15 +4,16 @@
 # Developed by C.Brown (dev@coralesoft.nz)
 # This software is released under the MIT License.
 # See the LICENSE file in the project root for the full license text.
-# Last revised 10/10/2024
-# version 2024.10.5
+# Last revised 11/10/2024
+# version 2024.10.6
 #-----------------------------------------------------------------------
 # Version      Date         Notes:
 # 2024.10.1    08-10.2024   Initial Public Release
 # 2024.10.2    09.10.2024   Added error handling, logging, and retries for robustness
 # 2024.10.3    09.10.2024   Handle pagination of large datasets
 # 2024.10.4    09.10.2024   Added improved token handling, error checking, and page-by-page processing
-# 2024.10.5    10.10.2024   Added configurable rate limiting
+# 2024.10.5    10.10.2024   Added configurable rate limiting 
+# 2024.10.6    11.10.2024   Added TAXII polling error handling
 #-----------------------------------------------------------------------
 
 import os
@@ -36,7 +37,6 @@ TAXII_COLLECTION = os.getenv('TAXII_COLLECTION', 'your_taxii_collection')
 
 # Rate limiting delay (in seconds) configurable via environment variable, default is 2 seconds
 RATE_LIMIT_DELAY = int(os.getenv('RATE_LIMIT_DELAY', 2))
-
 MAX_RETRIES = 3
 
 def log(message):
@@ -52,7 +52,7 @@ def retry(func, *args, **kwargs):
         try:
             return func(*args, **kwargs)
         except Exception as e:
-            log(f"Command failed. Attempt {n}/{MAX_RETRIES}. Retrying in {delay} seconds...")
+            log(f"Command failed. Attempt {n}/{MAX_RETRIES}. Retrying in {delay} seconds... Error: {e}")
             time.sleep(delay)
             n += 1
             delay *= 2
@@ -82,7 +82,7 @@ def get_crowdstrike_token():
         return None
 
 def poll_taxii_server():
-    """Poll TAXII server and handle pagination."""
+    """Poll TAXII server and handle pagination with error handling."""
     log(f"Polling TAXII server at {TAXII_SERVER_URL} for collection {TAXII_COLLECTION}...")
     headers = {'Content-Type': 'application/xml'}
     auth = HTTPBasicAuth(TAXII_USERNAME, TAXII_PASSWORD)
@@ -92,16 +92,27 @@ def poll_taxii_server():
     while True:
         data = f"<taxii_poll_request_xml{' next=' + next_token if next_token else ''}/>"
         response = requests.post(f"{TAXII_SERVER_URL}/collections/{TAXII_COLLECTION}/poll", headers=headers, auth=auth, data=data)
-        
-        if response.status_code != 200:
-            log(f"Failed to poll TAXII server: {response.status_code} {response.text}")
+
+        # Error handling based on response status
+        if response.status_code == 200:
+            taxii_data = response.json()
+            iocs = [obj['pattern'].split("'")[1] for obj in taxii_data.get('objects', []) if obj['type'] == 'indicator']
+            all_iocs.extend(iocs)
+            log(f"Retrieved {len(iocs)} IOCs from TAXII.")
+            
+        elif response.status_code == 404:
+            log("Error: Collection not found at TAXII server. URL may be incorrect or collection may not exist. Exiting...")
             break
 
-        taxii_data = response.json()
-        iocs = [obj['pattern'].split("'")[1] for obj in taxii_data.get('objects', []) if obj['type'] == 'indicator']
-        all_iocs.extend(iocs)
-        log(f"Retrieved {len(iocs)} IOCs from TAXII.")
-        
+        elif response.status_code == 401:
+            log("Error: Unauthorized access to TAXII server. Check your credentials. Exiting...")
+            break
+
+        elif response.status_code == 500:
+            log("Error: Internal server error at TAXII server. Retrying...")
+        else:
+            log(f"Error: Received unexpected HTTP status code {response.status_code} from TAXII server. Retrying...")
+
         # Add rate limiting between each request
         rate_limit()
 
