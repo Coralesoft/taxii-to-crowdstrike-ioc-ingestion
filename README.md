@@ -100,6 +100,7 @@ Main functions:
 | **2024.10.3**| 09-10-2024    | Handle pagination of large datasets from TAXII and CrowdStrike    |
 | **2024.10.4**| 09-10-2024    | Improved token handling, error checking, and page-by-page processing |
 | **2024.10.5**| 10-10-2024    | Added configurable rate limiting for managing API request frequency |
+| **2024.10.6**| 11-10-2024    | Added TAXII polling error handling|
 
 ## License
 
