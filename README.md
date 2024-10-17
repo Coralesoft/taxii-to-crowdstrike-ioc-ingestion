@@ -9,7 +9,7 @@ This repository contains two versions (Python and Shell) of a script designed to
 - Poll **STIX/TAXII** servers to retrieve IOCs.
 - Push or update **IOCs** into **CrowdStrike Falcon**.
 - Handle **pagination** for large datasets from both TAXII and CrowdStrike Falcon APIs.
-- **Retry mechanism** for transient failures (network issues).
+- **Retry mechanism** for transient failures (network issues). 
 - Supports setting API credentials via environment variables for secure deployment.
 - **Expiration management** for IOCs (valid for 3 months by default).
 
